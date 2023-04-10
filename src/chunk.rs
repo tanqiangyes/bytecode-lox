@@ -25,6 +25,10 @@ impl Chunk {
         self.lines.push(line);
     }
 
+    pub fn read(&self, ip: usize) -> u8 {
+        self.code[ip]
+    }
+
     pub fn free(&mut self) {
         self.code = Vec::new();
         self.lines = Vec::new();
@@ -33,6 +37,10 @@ impl Chunk {
 
     pub fn add_constant(&mut self, value: Value) -> u8 {
         self.constants.write(value) as u8
+    }
+
+    pub fn get_constant(&self, index: usize) -> Value {
+        self.constants.read_value(index)
     }
 
     pub fn disassemble<T: ToString>(&mut self, name: T) {
@@ -68,7 +76,7 @@ impl Chunk {
         let constant = self.code[offset + 1];
         print!("{name:-16} {constant:4} '");
         self.constants.print_value(constant as usize);
-        print!("'\n");
+        println!("'");
         offset + 2
     }
 }
