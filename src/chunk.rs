@@ -1,18 +1,33 @@
+use crate::value::{Value, ValueArray};
+
 pub struct Chunk {
     code: Vec<u8>,
+    constants: ValueArray,
 }
 
 impl Chunk {
-    pub fn new() -> Chunk {
-        Self { code: Vec::new() }
+    pub fn new() -> Self {
+        Self {
+            code: Vec::new(),
+            constants: ValueArray::new(),
+        }
     }
 
-    pub fn write(&mut self, byte: OpCode) {
-        self.code.push(byte.into());
+    pub fn write_opcode(&mut self, code: OpCode) {
+        self.code.push(code.into());
+    }
+
+    pub fn write(&mut self, byte: u8) {
+        self.code.push(byte);
     }
 
     pub fn free(&mut self) {
         self.code = Vec::new();
+        self.constants.free();
+    }
+
+    pub fn add_constant(&mut self, value: Value) -> u8 {
+        self.constants.write(value) as u8
     }
 
     pub fn disassemble<T: ToString>(&mut self, name: T) {
@@ -29,23 +44,34 @@ impl Chunk {
         let instruction: OpCode = self.code[offset].into();
         match instruction {
             OpCode::OpReturn => self.simple_instruction("OP_RETURN", offset),
+            OpCode::OpConstant => self.constant_instruction("OP_CONSTANT", offset),
         }
     }
 
     pub fn simple_instruction(&self, name: &str, offset: usize) -> usize {
-        println!("{name}");
+        println!("{name}\n");
         offset + 1
+    }
+
+    pub fn constant_instruction(&self, name: &str, offset: usize) -> usize {
+        let constant = self.code[offset + 1];
+        print!("{name:-16} {constant:4} '");
+        self.constants.print_value(constant as usize);
+        print!("'\n");
+        offset + 2
     }
 }
 
 pub enum OpCode {
-    OpReturn = 0,
+    OpConstant = 0,
+    OpReturn = 1,
 }
 
 impl From<u8> for OpCode {
     fn from(code: u8) -> Self {
         match code {
-            0 => OpCode::OpReturn,
+            0 => OpCode::OpConstant,
+            1 => OpCode::OpReturn,
             _ => unimplemented!("Invalid OpCode from u8"),
         }
     }
@@ -54,7 +80,8 @@ impl From<u8> for OpCode {
 impl From<OpCode> for u8 {
     fn from(code: OpCode) -> Self {
         match code {
-            OpCode::OpReturn => 0,
+            OpCode::OpConstant => 0,
+            OpCode::OpReturn => 1,
             // _ => unimplemented!("Invalid OpCode from opcode")
         }
     }
