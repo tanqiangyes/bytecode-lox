@@ -1,6 +1,7 @@
 mod chunk;
 mod compiler;
 mod opcode;
+mod precedence;
 mod scanner;
 mod token;
 mod token_type;
@@ -55,8 +56,8 @@ fn repl(vm: &mut VM) {
 fn run_file(vm: &mut VM, path: &str) -> io::Result<()> {
     let buf = std::fs::read_to_string(path)?;
     match vm.interpret(&buf) {
-        InterpretResult::RuntimeError => std::process::exit(66),
-        InterpretResult::CompileError => std::process::exit(65),
-        InterpretResult::Ok => std::process::exit(0),
+        Err(InterpretResult::RuntimeError) => std::process::exit(66),
+        Err(InterpretResult::CompileError) => std::process::exit(65),
+        Ok(_) => std::process::exit(0),
     }
 }

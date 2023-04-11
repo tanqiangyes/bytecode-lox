@@ -1,6 +1,7 @@
 use crate::opcode::OpCode;
 use crate::value::{Value, ValueArray};
 
+#[derive(Debug, Clone)]
 pub struct Chunk {
     code: Vec<u8>,
     lines: Vec<usize>,
@@ -36,8 +37,12 @@ impl Chunk {
         self.constants.free();
     }
 
-    pub fn add_constant(&mut self, value: Value) -> u8 {
-        self.constants.write(value) as u8
+    pub fn add_constant(&mut self, value: Value) -> Option<u8> {
+        let idx = self.constants.write(value);
+        match u8::try_from(idx) {
+            Ok(v) => Some(v),
+            Err(_) => None,
+        }
     }
 
     pub fn get_constant(&self, index: usize) -> Value {

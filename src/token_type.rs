@@ -47,4 +47,6 @@ pub enum TokenType {
     Error,
     // eof
     Eof,
+    // undefined
+    Undefined,
 }
