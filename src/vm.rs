@@ -1,4 +1,5 @@
 use crate::chunk::Chunk;
+use crate::compiler::Compiler;
 use crate::opcode::OpCode;
 use crate::value::Value;
 
@@ -26,11 +27,10 @@ impl VM {
         // }
     }
 
-    pub fn interpret(&mut self, chunk: &Chunk) -> InterpretResult {
-        self.ip = 0;
-        // self.chunk = Some(*chunk);
-        // InterpretResult::Ok
-        self.run(chunk)
+    pub fn interpret(&mut self, source: &str) -> InterpretResult {
+        let compiler = Compiler::new();
+        compiler.compile(source);
+        InterpretResult::Ok
     }
 
     fn run(&mut self, chunk: &Chunk) -> InterpretResult {
@@ -89,6 +89,6 @@ impl VM {
 
 pub enum InterpretResult {
     Ok,
-    // CompileError,
-    // RuntimeError,
+    CompileError,
+    RuntimeError,
 }
