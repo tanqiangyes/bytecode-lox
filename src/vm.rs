@@ -4,11 +4,19 @@ use crate::value::Value;
 pub struct VM {
     // chunk: Option<Chunk>,
     ip: usize,
+    stack: Vec<Value>,
 }
 
 impl VM {
     pub fn new() -> Self {
-        Self { ip: 0 }
+        Self {
+            ip: 0,
+            stack: Vec::new(),
+        }
+    }
+
+    pub fn reset_stack(&mut self) {
+        self.stack = Vec::new();
     }
 
     pub fn free(&mut self) {
@@ -27,17 +35,25 @@ impl VM {
     fn run(&mut self, chunk: &Chunk) -> InterpretResult {
         loop {
             #[cfg(feature = "debug_trace_execution")]
-            chunk.disassemble_instruction(self.ip);
+            {
+                print!("           ");
+                for slot in &self.stack {
+                    print!("[ {slot} ]");
+                }
+                println!();
+                chunk.disassemble_instruction(self.ip);
+            }
 
             let instruction = self.read_byte(chunk);
 
             match instruction {
                 OpCode::OpReturn => {
+                    println!("{}", self.stack.pop().unwrap());
                     return InterpretResult::Ok;
                 }
                 OpCode::OpConstant => {
                     let constant = self.read_constant(chunk);
-                    println!("{constant}");
+                    self.stack.push(constant);
                 }
             }
         }
