@@ -27,7 +27,9 @@ impl Precedence {
             Factor => Unary,
             Unary => Call,
             Call => Primary,
-            Primary => None,
+            Primary => {
+                panic!("Primary precedence have no next precedence.")
+            }
         }
     }
 
@@ -44,7 +46,9 @@ impl Precedence {
             Unary => Factor,
             Call => Unary,
             Primary => Call,
-            None => Primary,
+            None => {
+                panic!("None precedence have no previous precedence.")
+            }
         }
     }
 }
