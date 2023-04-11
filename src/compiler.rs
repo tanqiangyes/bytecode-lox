@@ -89,7 +89,7 @@ impl<'a> Compiler<'a> {
         if let Some(constant) = self.chunk.add_constant(value) {
             constant
         } else {
-            self.error_at_current("Too many constants in one chunk.");
+            self.error_at_previous("Too many constants in one chunk.");
             0
         }
     }
@@ -183,6 +183,10 @@ impl<'a> Compiler<'a> {
 
     fn error_at_current(&mut self, message: &str) {
         self.error_at(self.parser.current.clone(), message);
+    }
+
+    fn error_at_previous(&mut self, message: &str) {
+        self.error_at(self.parser.previous.clone(), message);
     }
 
     fn error_at(&mut self, token: Token, message: &str) {
