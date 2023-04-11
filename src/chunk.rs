@@ -1,3 +1,4 @@
+use crate::opcode::OpCode;
 use crate::value::{Value, ValueArray};
 
 pub struct Chunk {
@@ -62,13 +63,18 @@ impl Chunk {
 
         let instruction: OpCode = self.code[offset].into();
         match instruction {
-            OpCode::OpReturn => self.simple_instruction("OP_RETURN", offset),
-            OpCode::OpConstant => self.constant_instruction("OP_CONSTANT", offset),
+            OpCode::Return => self.simple_instruction("OP_RETURN", offset),
+            OpCode::Constant => self.constant_instruction("OP_CONSTANT", offset),
+            OpCode::Negate => self.simple_instruction("OP_NEGATE", offset),
+            OpCode::Add => self.simple_instruction("OP_ADD", offset),
+            OpCode::Subtract => self.simple_instruction("OP_SUBTRACT", offset),
+            OpCode::Multiply => self.simple_instruction("OP_MULTIPLY", offset),
+            OpCode::Divide => self.simple_instruction("OP_DIVIDE", offset),
         }
     }
 
     pub fn simple_instruction(&self, name: &str, offset: usize) -> usize {
-        println!("{name}\n");
+        println!("{name}");
         offset + 1
     }
 
@@ -78,30 +84,5 @@ impl Chunk {
         self.constants.print_value(constant as usize);
         println!("'");
         offset + 2
-    }
-}
-
-pub enum OpCode {
-    OpConstant = 0,
-    OpReturn = 1,
-}
-
-impl From<u8> for OpCode {
-    fn from(code: u8) -> Self {
-        match code {
-            0 => OpCode::OpConstant,
-            1 => OpCode::OpReturn,
-            _ => unimplemented!("Invalid OpCode from u8"),
-        }
-    }
-}
-
-impl From<OpCode> for u8 {
-    fn from(code: OpCode) -> Self {
-        match code {
-            OpCode::OpConstant => 0,
-            OpCode::OpReturn => 1,
-            // _ => unimplemented!("Invalid OpCode from opcode")
-        }
     }
 }

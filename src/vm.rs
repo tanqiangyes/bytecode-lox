@@ -1,4 +1,5 @@
-use crate::chunk::{Chunk, OpCode};
+use crate::chunk::Chunk;
+use crate::opcode::OpCode;
 use crate::value::Value;
 
 pub struct VM {
@@ -47,14 +48,22 @@ impl VM {
             let instruction = self.read_byte(chunk);
 
             match instruction {
-                OpCode::OpReturn => {
+                OpCode::Return => {
                     println!("{}", self.stack.pop().unwrap());
                     return InterpretResult::Ok;
                 }
-                OpCode::OpConstant => {
+                OpCode::Constant => {
                     let constant = self.read_constant(chunk);
                     self.stack.push(constant);
                 }
+                OpCode::Negate => {
+                    let value = self.stack.pop().unwrap();
+                    self.stack.push(-value);
+                }
+                OpCode::Add => self.binary_op(|a, b| a + b),
+                OpCode::Subtract => self.binary_op(|a, b| a - b),
+                OpCode::Multiply => self.binary_op(|a, b| a * b),
+                OpCode::Divide => self.binary_op(|a, b| a / b),
             }
         }
     }
@@ -69,6 +78,12 @@ impl VM {
         let index = chunk.read(self.ip) as usize;
         self.ip += 1;
         chunk.get_constant(index)
+    }
+
+    fn binary_op(&mut self, op: fn(a: Value, b: Value) -> Value) {
+        let b = self.stack.pop().unwrap();
+        let a = self.stack.pop().unwrap();
+        self.stack.push(op(a, b));
     }
 }
 
