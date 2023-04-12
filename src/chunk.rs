@@ -17,10 +17,10 @@ impl Chunk {
         }
     }
 
-    // pub fn write_opcode(&mut self, code: OpCode, line: usize) {
-    //     self.code.push(code.into());
-    //     self.lines.push(line);
-    // }
+    pub fn write_opcode(&mut self, code: OpCode, line: usize) {
+        self.code.push(code.into());
+        self.lines.push(line);
+    }
 
     pub fn write(&mut self, byte: u8, line: usize) {
         self.code.push(byte);
@@ -83,6 +83,9 @@ impl Chunk {
             OpCode::True => self.simple_instruction("OP_TRUE", offset),
             OpCode::False => self.simple_instruction("OP_FALSE", offset),
             OpCode::Not => self.simple_instruction("OP_NOT", offset),
+            OpCode::Equal => self.simple_instruction("OP_EQUAL", offset),
+            OpCode::Greater => self.simple_instruction("OP_GREATER", offset),
+            OpCode::Less => self.simple_instruction("OP_LESS", offset),
         }
     }
 

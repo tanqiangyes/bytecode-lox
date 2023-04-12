@@ -10,6 +10,9 @@ pub enum OpCode {
     True,
     False,
     Not,
+    Equal,
+    Greater,
+    Less,
 }
 
 impl From<u8> for OpCode {
@@ -26,6 +29,9 @@ impl From<u8> for OpCode {
             8 => OpCode::True,
             9 => OpCode::False,
             10 => OpCode::Not,
+            11 => OpCode::Equal,
+            12 => OpCode::Greater,
+            13 => OpCode::Less,
             _ => unimplemented!("Invalid OpCode from u8"),
         }
     }
@@ -45,6 +51,9 @@ impl From<OpCode> for u8 {
             OpCode::True => 8,
             OpCode::False => 9,
             OpCode::Not => 10,
+            OpCode::Equal => 11,
+            OpCode::Greater => 12,
+            OpCode::Less => 13,
             // _ => unimplemented!("Invalid OpCode from opcode")
         }
     }

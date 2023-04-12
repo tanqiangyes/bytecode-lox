@@ -64,9 +64,18 @@ impl<'a> Compiler<'a> {
         self.chunk.write(bytes, self.parser.previous.line);
     }
 
+    fn emit_code(&mut self, code: OpCode) {
+        self.chunk.write_opcode(code, self.parser.previous.line);
+    }
+
     fn emit_bytes(&mut self, code: OpCode, operand: u8) {
-        self.emit_byte(code.into());
+        self.emit_code(code);
         self.emit_byte(operand);
+    }
+
+    fn emit_codes(&mut self, code: OpCode, operand: OpCode) {
+        self.emit_code(code);
+        self.emit_code(operand);
     }
 
     fn emit_return(&mut self) {
@@ -106,6 +115,12 @@ impl<'a> Compiler<'a> {
             TokenType::Minus => self.emit_byte(OpCode::Subtract.into()),
             TokenType::Star => self.emit_byte(OpCode::Multiply.into()),
             TokenType::Slash => self.emit_byte(OpCode::Divide.into()),
+            TokenType::BangEqual => self.emit_codes(OpCode::Equal, OpCode::Not),
+            TokenType::Equal => self.emit_byte(OpCode::Equal.into()),
+            TokenType::GreaterEqual => self.emit_codes(OpCode::Less, OpCode::Not),
+            TokenType::Greater => self.emit_byte(OpCode::Greater.into()),
+            TokenType::LessEqual => self.emit_codes(OpCode::Greater, OpCode::Not),
+            TokenType::Less => self.emit_byte(OpCode::Less.into()),
             _ => {}
         }
     }
@@ -197,6 +212,19 @@ impl<'a> Compiler<'a> {
                 prefix: Some(|c| c.unary()),
                 infix: None,
                 precedence: Precedence::None,
+            },
+            TokenType::BangEqual | TokenType::Equal => ParseRule {
+                prefix: None,
+                infix: Some(|c| c.binary()),
+                precedence: Precedence::Equality,
+            },
+            TokenType::Greater
+            | TokenType::GreaterEqual
+            | TokenType::Less
+            | TokenType::LessEqual => ParseRule {
+                prefix: None,
+                infix: Some(|c| c.binary()),
+                precedence: Precedence::Comparison,
             },
             _ => ParseRule {
                 prefix: None,

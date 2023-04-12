@@ -16,14 +16,6 @@ impl Value {
     pub fn is_falsy(&self) -> bool {
         matches!(self, Value::Nil | Value::Boolean(false))
     }
-
-    pub fn is_nil(&self) -> bool {
-        matches!(self, Value::Nil)
-    }
-
-    pub fn is_bool(&self) -> bool {
-        matches!(self, Value::Boolean(_))
-    }
 }
 
 impl Display for Value {

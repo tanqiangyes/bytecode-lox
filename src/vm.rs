@@ -71,6 +71,13 @@ impl<'a> VM<'a> {
                     let value = self.pop();
                     self.stack.push(Value::Boolean(value.is_falsy()))
                 }
+                OpCode::Equal => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    self.stack.push(Value::Boolean(a == b));
+                }
+                OpCode::Greater => self.binary_op(|a, b| Value::Boolean(a > b))?,
+                OpCode::Less => self.binary_op(|a, b| Value::Boolean(a < b))?,
             }
         }
     }
