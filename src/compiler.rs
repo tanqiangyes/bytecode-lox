@@ -31,21 +31,6 @@ impl<'a> Compiler<'a> {
         self.advance();
         self.expression();
         self.consume(TokenType::Eof, "Expect end of expression.");
-        // let mut line = 0;
-        // loop {
-        //     let token = scanner.scan_token();
-        //     if token.line != line {
-        //         print!("{:4}  ", token.line);
-        //         line = token.line;
-        //     } else {
-        //         print!("    |  ");
-        //     }
-        //     println!("{:10?}  '{}'", token.ttype, token.lexeme);
-        //
-        //     if token.is(TokenType::Eof) {
-        //         break;
-        //     }
-        // }
         self.end_compiler();
         if *self.parser.had_error.borrow() {
             Err(InterpretResult::CompileError)

@@ -41,21 +41,21 @@ impl Token {
         self.ttype == ttype
     }
 
-    pub fn token_type(&self) -> TokenType {
-        self.ttype
-    }
+    // pub fn token_type(&self) -> TokenType {
+    //     self.ttype
+    // }
 
     pub fn as_string(&self) -> String {
         self.lexeme.clone()
     }
 
-    pub fn eof(line: usize) -> Token {
-        Token {
-            ttype: TokenType::Eof,
-            lexeme: "".to_string(),
-            line,
-        }
-    }
+    // pub fn eof(line: usize) -> Token {
+    //     Token {
+    //         ttype: TokenType::Eof,
+    //         lexeme: "".to_string(),
+    //         line,
+    //     }
+    // }
 }
 
 impl fmt::Display for Token {

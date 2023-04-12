@@ -33,22 +33,22 @@ impl Precedence {
         }
     }
 
-    pub fn previous(&self) -> Self {
-        use Precedence::*;
-        match *self {
-            Assignment => None,
-            Or => Assignment,
-            And => Or,
-            Equality => And,
-            Comparison => Equality,
-            Term => Comparison,
-            Factor => Term,
-            Unary => Factor,
-            Call => Unary,
-            Primary => Call,
-            None => {
-                panic!("None precedence have no previous precedence.")
-            }
-        }
-    }
+    // pub fn previous(&self) -> Self {
+    //     use Precedence::*;
+    //     match *self {
+    //         Assignment => None,
+    //         Or => Assignment,
+    //         And => Or,
+    //         Equality => And,
+    //         Comparison => Equality,
+    //         Term => Comparison,
+    //         Factor => Term,
+    //         Unary => Factor,
+    //         Call => Unary,
+    //         Primary => Call,
+    //         None => {
+    //             panic!("None precedence have no previous precedence.")
+    //         }
+    //     }
+    // }
 }

@@ -15,7 +15,8 @@ use std::io::{stdout, Write};
 
 fn main() {
     let args: Vec<String> = args().collect();
-    let mut vm = VM::new();
+    let mut chunk = chunk::Chunk::new();
+    let mut vm = VM::new(&mut chunk);
     match args.len() {
         1 => {
             repl(&mut vm);

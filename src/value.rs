@@ -1,4 +1,3 @@
-use crate::value;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -7,6 +6,12 @@ pub enum Value {
     Boolean(bool),
     Number(f64),
     Nil,
+}
+
+impl Value {
+    pub fn is_number(&self) -> bool {
+        matches!(self, Value::Number(_))
+    }
 }
 
 impl Display for Value {
