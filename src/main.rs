@@ -8,7 +8,6 @@ mod token_type;
 mod value;
 mod vm;
 
-use crate::opcode::OpCode;
 use crate::vm::*;
 use std::env::args;
 use std::io;

@@ -12,21 +12,24 @@ pub struct Compiler<'a> {
     parser: Parser,
     scanner: Scanner,
     chunk: &'a mut Chunk,
+    // rules: Vec<ParseRule<'a>>,
 }
 
 impl<'a> Compiler<'a> {
     pub fn new(chunk: &'a mut Chunk) -> Self {
+        // let rules =
         Self {
             parser: Default::default(),
             scanner: Scanner::new(""),
             chunk,
+            // rules,
         }
     }
 
     pub fn compile(&mut self, source: &str) -> Result<(), InterpretResult> {
         self.scanner = Scanner::new(source);
         self.advance();
-        // self.expression()?;
+        self.expression();
         self.consume(TokenType::Eof, "Expect end of expression.");
         // let mut line = 0;
         // loop {
@@ -56,7 +59,7 @@ impl<'a> Compiler<'a> {
 
         loop {
             self.parser.current = self.scanner.scan_token();
-            if self.parser.current.is(TokenType::Error) {
+            if !self.parser.current.is(TokenType::Error) {
                 break;
             }
 
@@ -140,35 +143,49 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    fn parse_precedence(&mut self, precedence: Precedence) {}
+    fn parse_precedence(&mut self, precedence: Precedence) {
+        self.advance();
+        if let Some(prefix_rule) = self.get_rule(self.parser.previous.ttype).prefix {
+            prefix_rule(self);
+
+            while precedence <= self.get_rule(self.parser.current.ttype).precedence {
+                self.advance();
+                if let Some(infix_rule) = self.get_rule(self.parser.previous.ttype).infix {
+                    infix_rule(self)
+                }
+            }
+        } else {
+            self.error_at_previous("Expected expression.");
+        }
+    }
 
     fn get_rule(&self, ttype: TokenType) -> ParseRule {
         match ttype {
-            // TokenType::LeftParen => ParseRule {
-            //     prefix: Some(Compiler::grouping),
-            //     infix: None,
-            //     precedence: Precedence::None,
-            // },
-            // TokenType::Minus => ParseRule {
-            //     prefix: Some(Compiler::unary),
-            //     infix: Some(Compiler::binary),
-            //     precedence: Precedence::Term,
-            // },
-            // TokenType::Plus => ParseRule {
-            //     prefix: None,
-            //     infix: Some(Compiler::binary),
-            //     precedence: Precedence::Term,
-            // },
-            // TokenType::Slash | TokenType::Star => ParseRule {
-            //     prefix: None,
-            //     infix: Some(Compiler::binary),
-            //     precedence: Precedence::Factor,
-            // },
-            // TokenType::Number => ParseRule {
-            //     prefix: Some(Compiler::number),
-            //     infix: None,
-            //     precedence: Precedence::Term,
-            // },
+            TokenType::LeftParen => ParseRule {
+                prefix: Some(|c| c.grouping()),
+                infix: None,
+                precedence: Precedence::None,
+            },
+            TokenType::Minus => ParseRule {
+                prefix: Some(|c| c.unary()),
+                infix: Some(|c| c.binary()),
+                precedence: Precedence::Term,
+            },
+            TokenType::Plus => ParseRule {
+                prefix: None,
+                infix: Some(|c| c.binary()),
+                precedence: Precedence::Term,
+            },
+            TokenType::Slash | TokenType::Star => ParseRule {
+                prefix: None,
+                infix: Some(|c| c.binary()),
+                precedence: Precedence::Factor,
+            },
+            TokenType::Number => ParseRule {
+                prefix: Some(|c| c.number()),
+                infix: None,
+                precedence: Precedence::None,
+            },
             _ => ParseRule {
                 prefix: None,
                 infix: None,
