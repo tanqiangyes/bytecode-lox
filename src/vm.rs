@@ -22,23 +22,14 @@ impl<'a> VM<'a> {
         self.stack.clear();
     }
 
-    pub fn free(&mut self) {
-        // if let Some(chunk) = &self.chunk {
-        //     chunk.free();
-        // }
-    }
-
     pub fn interpret(&mut self, source: &str) -> Result<(), InterpretResult> {
         let mut compiler = Compiler::new(self.chunk);
         compiler.compile(source)?;
         self.ip = 0;
-        let result = self.run();
-        self.chunk.free();
-        result
+        self.run()
     }
 
     fn run(&mut self) -> Result<(), InterpretResult> {
-        // if let Some(chunk) = &self.chunk.clone() {
         loop {
             #[cfg(feature = "debug_trace_execution")]
             {
@@ -73,11 +64,15 @@ impl<'a> VM<'a> {
                 OpCode::Subtract => self.binary_op(|a, b| a - b)?,
                 OpCode::Multiply => self.binary_op(|a, b| a * b)?,
                 OpCode::Divide => self.binary_op(|a, b| a / b)?,
+                OpCode::Nil => self.stack.push(Value::Nil),
+                OpCode::True => self.stack.push(Value::Boolean(true)),
+                OpCode::False => self.stack.push(Value::Boolean(false)),
+                OpCode::Not => {
+                    let value = self.pop();
+                    self.stack.push(Value::Boolean(value.is_falsy()))
+                }
             }
         }
-        // } else {
-        //     Err(InterpretResult::CompileError)
-        // }
     }
 
     fn pop(&mut self) -> Value {

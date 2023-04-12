@@ -6,6 +6,10 @@ pub enum OpCode {
     Subtract,
     Multiply,
     Divide,
+    Nil,
+    True,
+    False,
+    Not,
 }
 
 impl From<u8> for OpCode {
@@ -18,6 +22,10 @@ impl From<u8> for OpCode {
             4 => OpCode::Subtract,
             5 => OpCode::Multiply,
             6 => OpCode::Divide,
+            7 => OpCode::Nil,
+            8 => OpCode::True,
+            9 => OpCode::False,
+            10 => OpCode::Not,
             _ => unimplemented!("Invalid OpCode from u8"),
         }
     }
@@ -33,6 +41,10 @@ impl From<OpCode> for u8 {
             OpCode::Subtract => 4,
             OpCode::Multiply => 5,
             OpCode::Divide => 6,
+            OpCode::Nil => 7,
+            OpCode::True => 8,
+            OpCode::False => 9,
+            OpCode::Not => 10,
             // _ => unimplemented!("Invalid OpCode from opcode")
         }
     }

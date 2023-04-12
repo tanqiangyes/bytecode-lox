@@ -12,6 +12,18 @@ impl Value {
     pub fn is_number(&self) -> bool {
         matches!(self, Value::Number(_))
     }
+
+    pub fn is_falsy(&self) -> bool {
+        matches!(self, Value::Nil | Value::Boolean(false))
+    }
+
+    pub fn is_nil(&self) -> bool {
+        matches!(self, Value::Nil)
+    }
+
+    pub fn is_bool(&self) -> bool {
+        matches!(self, Value::Boolean(_))
+    }
 }
 
 impl Display for Value {
@@ -108,9 +120,9 @@ impl ValueArray {
         count
     }
 
-    pub fn free(&mut self) {
-        self.values = Vec::new();
-    }
+    // pub fn free(&mut self) {
+    //     self.values = Vec::new();
+    // }
 
     pub fn print_value(&self, which: usize) {
         print!("{}", self.values[which]);

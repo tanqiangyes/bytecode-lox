@@ -110,6 +110,15 @@ impl<'a> Compiler<'a> {
         }
     }
 
+    fn literal(&mut self) {
+        match self.parser.previous.ttype {
+            TokenType::Nil => self.emit_byte(OpCode::Nil.into()),
+            TokenType::True => self.emit_byte(OpCode::True.into()),
+            TokenType::False => self.emit_byte(OpCode::False.into()),
+            _ => {}
+        }
+    }
+
     fn grouping(&mut self) {
         self.expression();
         self.consume(TokenType::RightParen, "Expect ')' after expression.");
@@ -125,10 +134,14 @@ impl<'a> Compiler<'a> {
 
         self.parse_precedence(Precedence::Unary);
 
-        if operator_type == TokenType::Minus {
-            self.emit_byte(OpCode::Negate.into());
-        } else {
-            self.error_at_current("Unsupported Operand type.");
+        match operator_type {
+            TokenType::Minus => {
+                self.emit_byte(OpCode::Negate.into());
+            }
+            TokenType::Bang => {
+                self.emit_byte(OpCode::Not.into());
+            }
+            _ => self.error_at_current("Unsupported Operand type."),
         }
     }
 
@@ -172,6 +185,16 @@ impl<'a> Compiler<'a> {
             },
             TokenType::Number => ParseRule {
                 prefix: Some(|c| c.number()),
+                infix: None,
+                precedence: Precedence::None,
+            },
+            TokenType::False | TokenType::True | TokenType::Nil => ParseRule {
+                prefix: Some(|c| c.literal()),
+                infix: None,
+                precedence: Precedence::None,
+            },
+            TokenType::Bang => ParseRule {
+                prefix: Some(|c| c.unary()),
                 infix: None,
                 precedence: Precedence::None,
             },

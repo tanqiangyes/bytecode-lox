@@ -35,11 +35,11 @@ impl Chunk {
         self.lines[ip]
     }
 
-    pub fn free(&mut self) {
-        self.code = Vec::new();
-        self.lines = Vec::new();
-        self.constants.free();
-    }
+    // pub fn free(&mut self) {
+    //     self.code = Vec::new();
+    //     self.lines = Vec::new();
+    //     self.constants.free();
+    // }
 
     pub fn add_constant(&mut self, value: Value) -> Option<u8> {
         let idx = self.constants.write(value);
@@ -79,6 +79,10 @@ impl Chunk {
             OpCode::Subtract => self.simple_instruction("OP_SUBTRACT", offset),
             OpCode::Multiply => self.simple_instruction("OP_MULTIPLY", offset),
             OpCode::Divide => self.simple_instruction("OP_DIVIDE", offset),
+            OpCode::Nil => self.simple_instruction("OP_NIL", offset),
+            OpCode::True => self.simple_instruction("OP_TRUE", offset),
+            OpCode::False => self.simple_instruction("OP_FALSE", offset),
+            OpCode::Not => self.simple_instruction("OP_NOT", offset),
         }
     }
 
