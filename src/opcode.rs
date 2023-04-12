@@ -13,6 +13,9 @@ pub enum OpCode {
     Equal,
     Greater,
     Less,
+    BangEqual,
+    GreaterEqual,
+    LessEqual,
 }
 
 impl From<u8> for OpCode {
@@ -32,6 +35,9 @@ impl From<u8> for OpCode {
             11 => OpCode::Equal,
             12 => OpCode::Greater,
             13 => OpCode::Less,
+            14 => OpCode::BangEqual,
+            15 => OpCode::GreaterEqual,
+            16 => OpCode::LessEqual,
             _ => unimplemented!("Invalid OpCode from u8"),
         }
     }
@@ -54,6 +60,9 @@ impl From<OpCode> for u8 {
             OpCode::Equal => 11,
             OpCode::Greater => 12,
             OpCode::Less => 13,
+            OpCode::BangEqual => 14,
+            OpCode::GreaterEqual => 15,
+            OpCode::LessEqual => 16,
             // _ => unimplemented!("Invalid OpCode from opcode")
         }
     }

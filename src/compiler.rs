@@ -111,16 +111,16 @@ impl<'a> Compiler<'a> {
         self.parse_precedence(rule.precedence.next());
 
         match operator_type {
+            TokenType::BangEqual => self.emit_code(OpCode::BangEqual),
+            TokenType::Equal => self.emit_byte(OpCode::Equal.into()),
+            TokenType::Greater => self.emit_byte(OpCode::Greater.into()),
+            TokenType::GreaterEqual => self.emit_code(OpCode::GreaterEqual),
+            TokenType::Less => self.emit_byte(OpCode::Less.into()),
+            TokenType::LessEqual => self.emit_code(OpCode::LessEqual),
             TokenType::Plus => self.emit_byte(OpCode::Add.into()),
             TokenType::Minus => self.emit_byte(OpCode::Subtract.into()),
             TokenType::Star => self.emit_byte(OpCode::Multiply.into()),
             TokenType::Slash => self.emit_byte(OpCode::Divide.into()),
-            TokenType::BangEqual => self.emit_codes(OpCode::Equal, OpCode::Not),
-            TokenType::Equal => self.emit_byte(OpCode::Equal.into()),
-            TokenType::GreaterEqual => self.emit_codes(OpCode::Less, OpCode::Not),
-            TokenType::Greater => self.emit_byte(OpCode::Greater.into()),
-            TokenType::LessEqual => self.emit_codes(OpCode::Greater, OpCode::Not),
-            TokenType::Less => self.emit_byte(OpCode::Less.into()),
             _ => {}
         }
     }

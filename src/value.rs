@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug, PartialOrd, PartialEq, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub enum Value {
     Boolean(bool),
     Number(f64),
@@ -112,9 +112,9 @@ impl ValueArray {
         count
     }
 
-    // pub fn free(&mut self) {
-    //     self.values = Vec::new();
-    // }
+    pub fn free(&mut self) {
+        self.values.clear();
+    }
 
     pub fn print_value(&self, which: usize) {
         print!("{}", self.values[which]);
