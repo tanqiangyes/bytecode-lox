@@ -1,5 +1,6 @@
 use crate::opcode::OpCode;
 use crate::value::{Value, ValueArray};
+use crate::vm::InterpretResult;
 
 #[derive(Debug, Clone)]
 pub struct Chunk {
@@ -49,7 +50,7 @@ impl Chunk {
         }
     }
 
-    pub fn get_constant(&self, index: usize) -> Value {
+    pub fn get_constant(&self, index: usize) -> Result<Value, InterpretResult> {
         self.constants.read_value(index)
     }
 

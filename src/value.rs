@@ -1,16 +1,23 @@
+use crate::object::Object;
+use crate::vm::InterpretResult;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Value {
     Boolean(bool),
     Number(f64),
     Nil,
+    Obj(Object),
 }
 
 impl Value {
     pub fn is_number(&self) -> bool {
         matches!(self, Value::Number(_))
+    }
+
+    pub fn is_string(&self) -> bool {
+        matches!(self, Value::Obj(Object::Str(_)))
     }
 
     pub fn is_falsy(&self) -> bool {
@@ -29,6 +36,9 @@ impl Display for Value {
             }
             Value::Nil => {
                 write!(f, "nil")
+            }
+            Value::Obj(o) => {
+                write!(f, "{}", o)
             }
         }
     }
@@ -79,7 +89,15 @@ impl Add for Value {
     fn add(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
             (Value::Number(left), Value::Number(right)) => Value::Number(left + right),
-            // (Value::Str(left), Value::Str(right)) => Value::Str(format!("{}{}", left, right)),
+            (Value::Obj(Object::Str(left)), Value::Obj(Object::Str(right))) => {
+                Value::Obj(Object::Str(format!("{}{}", left, right)))
+            }
+            (Value::Number(left), Value::Obj(Object::Str(right))) => {
+                Value::Obj(Object::Str(format!("{}{}", left, right)))
+            }
+            (Value::Obj(Object::Str(left)), Value::Number(right)) => {
+                Value::Obj(Object::Str(format!("{}{}", left, right)))
+            }
             _ => panic!("Only support numbers and numbers."),
         }
     }
@@ -120,7 +138,11 @@ impl ValueArray {
         print!("{}", self.values[which]);
     }
 
-    pub fn read_value(&self, which: usize) -> Value {
-        self.values[which]
+    pub fn read_value(&self, which: usize) -> Result<Value, InterpretResult> {
+        if let Some(value) = self.values.get(which) {
+            Ok(value.clone())
+        } else {
+            Err(InterpretResult::CompileError)
+        }
     }
 }

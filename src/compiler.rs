@@ -1,4 +1,5 @@
 use crate::chunk::Chunk;
+use crate::object::Object;
 use crate::opcode::OpCode;
 use crate::precedence::Precedence;
 use crate::scanner::Scanner;
@@ -73,11 +74,6 @@ impl<'a> Compiler<'a> {
         self.emit_byte(operand);
     }
 
-    fn emit_codes(&mut self, code: OpCode, operand: OpCode) {
-        self.emit_code(code);
-        self.emit_code(operand);
-    }
-
     fn emit_return(&mut self) {
         self.emit_byte(OpCode::Return.into());
     }
@@ -142,6 +138,12 @@ impl<'a> Compiler<'a> {
     fn number(&mut self) {
         let value = self.parser.previous.lexeme.parse::<f64>().unwrap();
         self.emit_constant(Value::Number(value));
+    }
+
+    fn string(&mut self) {
+        let len = self.parser.previous.lexeme.len() - 1;
+        let value = self.parser.previous.as_string()[1..len].to_string();
+        self.emit_constant(Value::Obj(Object::Str(value)))
     }
 
     fn unary(&mut self) {
@@ -225,6 +227,11 @@ impl<'a> Compiler<'a> {
                 prefix: None,
                 infix: Some(|c| c.binary()),
                 precedence: Precedence::Comparison,
+            },
+            TokenType::String => ParseRule {
+                prefix: Some(|c| c.string()),
+                infix: None,
+                precedence: Precedence::None,
             },
             _ => ParseRule {
                 prefix: None,

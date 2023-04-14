@@ -1,5 +1,6 @@
 mod chunk;
 mod compiler;
+mod object;
 mod opcode;
 mod precedence;
 mod scanner;
