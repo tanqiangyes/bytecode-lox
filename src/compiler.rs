@@ -44,7 +44,67 @@ impl<'a> Compiler<'a> {
     }
 
     fn declaration(&mut self) {
-        self.statement();
+        if self.is_match(TokenType::Var) {
+            self.var_declaration();
+        } else {
+            self.statement();
+        }
+        if *self.parser.panic_mode.borrow() {
+            self.synchronize();
+        }
+    }
+
+    fn var_declaration(&mut self) {
+        let golbal = self.parse_variable("Expect variable name.");
+
+        if self.is_match(TokenType::Assign) {
+            self.expression();
+        } else {
+            self.emit_code(OpCode::Nil);
+        }
+
+        self.consume(
+            TokenType::SemiColon,
+            "Expect ';' after variable declaration.",
+        );
+
+        self.define_variable(golbal);
+    }
+
+    fn define_variable(&mut self, global: u8) {
+        self.emit_bytes(OpCode::DefineGlobal, global);
+    }
+
+    fn identifier_constant(&mut self, name: String) -> u8 {
+        self.make_constant(Value::Obj(Object::Str(name)))
+    }
+
+    fn parse_variable(&mut self, message: &str) -> u8 {
+        self.consume(TokenType::Identifier, message);
+        self.identifier_constant(self.parser.previous.as_string())
+    }
+
+    fn synchronize(&mut self) {
+        self.parser.panic_mode.replace(false);
+        while !self.parser.current.is(TokenType::Eof) {
+            if self.parser.previous.is(TokenType::SemiColon) {
+                return;
+            }
+            match self.parser.current.ttype {
+                TokenType::Class
+                | TokenType::Fun
+                | TokenType::Var
+                | TokenType::For
+                | TokenType::If
+                | TokenType::While
+                | TokenType::Print
+                | TokenType::Return => {
+                    return;
+                }
+                _ => {}
+            }
+            self.advance();
+        }
     }
 
     fn statement(&mut self) {
@@ -186,6 +246,15 @@ impl<'a> Compiler<'a> {
         self.emit_constant(Value::Obj(Object::Str(value)))
     }
 
+    fn variable(&mut self) {
+        self.name_variable(self.parser.previous.as_string());
+    }
+
+    fn name_variable(&mut self, name: String) {
+        let arg = self.identifier_constant(name);
+        self.emit_bytes(OpCode::GetGlobal, arg);
+    }
+
     fn unary(&mut self) {
         let operator_type = self.parser.previous.ttype;
 
@@ -270,6 +339,11 @@ impl<'a> Compiler<'a> {
             },
             TokenType::String => ParseRule {
                 prefix: Some(|c| c.string()),
+                infix: None,
+                precedence: Precedence::None,
+            },
+            TokenType::Identifier => ParseRule {
+                prefix: Some(|c| c.variable()),
                 infix: None,
                 precedence: Precedence::None,
             },

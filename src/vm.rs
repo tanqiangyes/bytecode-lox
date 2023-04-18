@@ -3,12 +3,13 @@ use crate::compiler::Compiler;
 use crate::object::Object;
 use crate::opcode::OpCode;
 use crate::value::Value;
+use std::collections::HashMap;
 
 pub struct VM<'a> {
     chunk: &'a mut Chunk,
     ip: usize,
     stack: Vec<Value>,
-    memory: Vec<Object>,
+    globals: HashMap<String, Value>,
 }
 
 impl<'a> VM<'a> {
@@ -17,7 +18,7 @@ impl<'a> VM<'a> {
             chunk,
             ip: 0,
             stack: Vec::new(),
-            memory: Vec::new(),
+            globals: HashMap::new(),
         }
     }
 
@@ -55,6 +56,27 @@ impl<'a> VM<'a> {
             let instruction = self.read_byte();
 
             match instruction {
+                OpCode::GetGlobal => {
+                    let name = self.read_constant()?.clone();
+                    if let Value::Obj(Object::Str(s)) = name {
+                        if let Some(value) = self.globals.get(s.as_str()) {
+                            self.stack.push(value.clone());
+                        } else {
+                            return self.runtime_error(&format!("Undefined variable '{}'.", s));
+                        }
+                    } else {
+                        return self.runtime_error("Can`t read constant from table.");
+                    }
+                }
+                OpCode::DefineGlobal => {
+                    let name = self.read_constant()?.clone();
+                    if let Value::Obj(Object::Str(s)) = name {
+                        let p = self.pop();
+                        self.globals.insert(s, p.clone());
+                    } else {
+                        return self.runtime_error("Unable to read constant from table.");
+                    }
+                }
                 OpCode::Pop => {
                     self.pop();
                 }

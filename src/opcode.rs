@@ -18,6 +18,8 @@ pub enum OpCode {
     LessEqual,
     Print,
     Pop,
+    DefineGlobal,
+    GetGlobal,
 }
 
 impl From<u8> for OpCode {
@@ -42,6 +44,8 @@ impl From<u8> for OpCode {
             16 => OpCode::LessEqual,
             17 => OpCode::Print,
             18 => OpCode::Pop,
+            19 => OpCode::DefineGlobal,
+            20 => OpCode::GetGlobal,
             _ => unimplemented!("Invalid OpCode from u8"),
         }
     }
@@ -69,6 +73,8 @@ impl From<OpCode> for u8 {
             OpCode::LessEqual => 16,
             OpCode::Print => 17,
             OpCode::Pop => 18,
+            OpCode::DefineGlobal => 19,
+            OpCode::GetGlobal => 20,
             // _ => unimplemented!("Invalid OpCode from opcode")
         }
     }
