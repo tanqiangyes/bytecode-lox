@@ -50,6 +50,8 @@ impl<'a> Compiler<'a> {
     fn statement(&mut self) {
         if self.is_match(TokenType::Print) {
             self.print_statement();
+        } else {
+            self.expression_statement();
         }
     }
 
@@ -57,6 +59,12 @@ impl<'a> Compiler<'a> {
         self.expression();
         self.consume(TokenType::SemiColon, "Expect ';' after value.");
         self.emit_code(OpCode::Print);
+    }
+
+    fn expression_statement(&mut self) {
+        self.expression();
+        self.consume(TokenType::SemiColon, "Expect ';' expression.");
+        self.emit_code(OpCode::Pop);
     }
 
     fn is_match(&mut self, ttype: TokenType) -> bool {
