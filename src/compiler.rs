@@ -30,14 +30,46 @@ impl<'a> Compiler<'a> {
     pub fn compile(&mut self, source: &str) -> Result<(), InterpretResult> {
         self.scanner = Scanner::new(source);
         self.advance();
-        self.expression();
-        self.consume(TokenType::Eof, "Expect end of expression.");
+
+        while !self.is_match(TokenType::Eof) {
+            self.declaration();
+        }
+
         self.end_compiler();
         if *self.parser.had_error.borrow() {
             Err(InterpretResult::CompileError)
         } else {
             Ok(())
         }
+    }
+
+    fn declaration(&mut self) {
+        self.statement();
+    }
+
+    fn statement(&mut self) {
+        if self.is_match(TokenType::Print) {
+            self.print_statement();
+        }
+    }
+
+    fn print_statement(&mut self) {
+        self.expression();
+        self.consume(TokenType::SemiColon, "Expect ';' after value.");
+        self.emit_code(OpCode::Print);
+    }
+
+    fn is_match(&mut self, ttype: TokenType) -> bool {
+        if !self.check(ttype) {
+            return false;
+        }
+
+        self.advance();
+        true
+    }
+
+    fn check(&mut self, ttype: TokenType) -> bool {
+        self.parser.current.is(ttype)
     }
 
     fn advance(&mut self) {
